@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXUS CYBERHUB - Games & PIX Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QRCodeJS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#070913',
+                            card: '#121829',
+                            cardBorder: '#1e293b',
+                            neonPurple: '#a855f7',
+                            neonCyan: '#06b6d4',
+                            neonPink: '#ec4899',
+                            neonGreen: '#10b981',
+                            neonAmber: '#f59e0b'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #070913;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        .font-game { font-family: 'Orbitron', sans-serif; }
+        .font-subgame { font-family: 'Rajdhani', sans-serif; }
+
+        .neon-border-cyan {
+            border: 1px solid #06b6d4;
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.3), inset 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+
+        .neon-border-purple {
+            border: 1px solid #a855f7;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.3), inset 0 0 10px rgba(168, 85, 247, 0.2);
+        }
+
+        .neon-glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.5); }
+        .neon-glow-purple { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+        .neon-glow-pink { box-shadow: 0 0 15px rgba(236, 72, 153, 0.5); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(1000%); }
+        }
+        .animate-scanline {
+            animation: scanline 8s linear infinite;
+        }
+
+        /* Grid Background Effect */
+        .cyber-grid {
+            background-size: 30px 30px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between cyber-grid pb-20 md:pb-0">
+
+    <header class="sticky top-0 z-40 bg-cyber-bg/90 backdrop-blur-md border-b border-cyber-cardBorder px-4 py-3 shadow-xl">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('games')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-cyan-500 to-pink-500 flex items-center justify-center text-white font-game font-bold text-xl shadow-lg neon-glow-purple">
+                    N
+                </div>
+                <div>
+                    <h1 class="font-game text-base sm:text-xl font-black tracking-wider bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent">
+                        NEXUS<span class="text-xs text-cyan-400 font-sans ml-1">CYBERHUB</span>
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Header Balance & Quick Action -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div onclick="switchTab('store')" class="flex items-center gap-2 bg-cyber-card border border-cyber-cardBorder px-3 py-1.5 rounded-full cursor-pointer hover:border-cyan-500 transition-all">
+                    <i class="fa-solid fa-coins text-amber-400 text-sm"></i>
+                    <span id="headerCoins" class="font-game text-xs sm:text-sm font-semibold text-amber-300">100</span>
+                    <i class="fa-solid fa-plus-circle text-xs text-cyan-400 ml-0.5"></i>
+                </div>
+
+                <button onclick="switchTab('guide')" class="hidden sm:flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-3 py-1.5 rounded-full font-game text-xs font-bold transition-all shadow-md">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <span>COMO HOSPEDAR</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto w-full px-4 py-6 flex-1">
+
+        <!-- TAB 1: GAMES PORTAL -->
+        <section id="tab-games" class="tab-content block space-y-6">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/40 via-cyber-card to-cyan-900/40 border border-purple-500/40 p-5 sm:p-8 shadow-2xl">
+                <div class="absolute inset-0 bg-cyan-500/5 animate-scanline pointer-events-none"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div class="space-y-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold font-game">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                            ONLINE ARCADE PORTAL
+                        </span>
+                        <h2 class="font-game text-2xl sm:text-4xl font-extrabold text-white tracking-wide">
+                            JOGUE, COMPITA & <span class="text-cyan-400">RECEBA VIA PIX</span>
+                        </h2>
+                        <p class="text-xs sm:text-sm text-gray-300 max-w-xl">
+                            Acesse jogos arcade com efeitos sonoros retro. Ganhe moedas digitais, conquiste o ranking global ou apoie o criador diretamente via PIX!
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <button onclick="switchTab('store')" class="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-game text-xs font-bold shadow-lg neon-glow-cyan transition-all flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-pix text-base"></i> APOIAR COM PIX
+                        </button>
+                        <button onclick="switchTab('guide')" class="px-5 py-3 rounded-xl bg-cyber-card hover:bg-cyber-cardBorder border border-purple-500/50 text-purple-300 font-game text-xs font-bold transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-mobile-screen"></i> GUIA DE HOSPEDAGEM
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Cards Grid -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-game text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-gamepad text-cyan-400"></i> Jogos Disponíveis
+                    </h3>
+                    <span class="text-xs text-gray-400 font-subgame">4 Jogos Ativos</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- Game 1: Snake -->
+                    <div onclick="openGame('snake')" class="group bg-cyber-card hover:bg-cyber-card/80 border border-cyber-cardBorder hover:border-emerald-500/80 rounded-2xl p-5 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-emerald-500/20 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-staff-snake"></i>
+                                </div>
+                                <span class="text-[10px] font-game px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">RETRO</span>
+                            </div>
+                            <h4 class="font-game font-bold text-white text-base group-hover:text-emerald-400 transition-colors">Cyber Snake</h4>
+                            <p class="text-xs text-gray-400 mt-1">Guie a serpente neon, colete pixels de energia e supere o recorde!</p>
+                        </div>
+                        <button class="mt-5 w-full py-2.5 rounded-xl bg-cyber-cardBorder group-hover:bg-emerald-600 text-white font-game text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play text-xs"></i> JOGAR AGORA
+                        </button>
+                    </div>
+
+                    <!-- Game 2: Flappy Bird -->
+                    <div onclick="openGame('flappy')" class="group bg-cyber-card hover:bg-cyber-card/80 border border-cyber-cardBorder hover:border-amber-500/80 rounded-2xl p-5 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-amber-500/20 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-plane-up"></i>
+                                </div>
+                                <span class="text-[10px] font-game px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">ARCADE</span>
+                            </div>
+                            <h4 class="font-game font-bold text-white text-base group-hover:text-amber-400 transition-colors">Cyber Flappy</h4>
+                            <p class="text-xs text-gray-400 mt-1">Pilote o drone através dos portais de energia sem colidir.</p>
+                        </div>
+                        <button class="mt-5 w-full py-2.5 rounded-xl bg-cyber-cardBorder group-hover:bg-amber-600 text-white font-game text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play text-xs"></i> JOGAR AGORA
+                        </button>
+                    </div>
+
+                    <!-- Game 3: Tic Tac Toe -->
+                    <div onclick="openGame('tictactoe')" class="group bg-cyber-card hover:bg-cyber-card/80 border border-cyber-cardBorder hover:border-cyan-500/80 rounded-2xl p-5 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-cyan-500/20 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-hashtag"></i>
+                                </div>
+                                <span class="text-[10px] font-game px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">VERSUS AI</span>
+                            </div>
+                            <h4 class="font-game font-bold text-white text-base group-hover:text-cyan-400 transition-colors">Jogo da Velha</h4>
+                            <p class="text-xs text-gray-400 mt-1">Desafie a Inteligência Artificial em uma partida rápida e estratégica.</p>
+                        </div>
+                        <button class="mt-5 w-full py-2.5 rounded-xl bg-cyber-cardBorder group-hover:bg-cyan-600 text-white font-game text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play text-xs"></i> JOGAR AGORA
+                        </button>
+                    </div>
+
+                    <!-- Game 4: Memory Match -->
+                    <div onclick="openGame('memory')" class="group bg-cyber-card hover:bg-cyber-card/80 border border-cyber-cardBorder hover:border-purple-500/80 rounded-2xl p-5 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-purple-500/20 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-brain"></i>
+                                </div>
+                                <span class="text-[10px] font-game px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">MEMÓRIA</span>
+                            </div>
+                            <h4 class="font-game font-bold text-white text-base group-hover:text-purple-400 transition-colors">Cyber Memory</h4>
+                            <p class="text-xs text-gray-400 mt-1">Encontre os pares de símbolos de hacking no menor tempo possível.</p>
+                        </div>
+                        <button class="mt-5 w-full py-2.5 rounded-xl bg-cyber-cardBorder group-hover:bg-purple-600 text-white font-game text-xs font-bold transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-play text-xs"></i> JOGAR AGORA
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Global Leaderboard Preview -->
+            <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-5 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-game text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-400"></i> Ranking Global de Jogadores
+                    </h3>
+                    <span class="text-xs text-gray-400 font-subgame">Top Players</span>
+                </div>
+
+                <div id="leaderboardList" class="space-y-2">
+                    <!-- Leaderboard Items JS Injected -->
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-store" class="tab-content hidden space-y-6">
+            <div class="text-center max-w-xl mx-auto space-y-2">
+                <span class="text-xs font-game text-cyan-400 uppercase tracking-widest">Loja & Doações PIX</span>
+                <h2 class="font-game text-2xl sm:text-3xl font-extrabold text-white">Comprar Fichas ou Apoiar o Site</h2>
+                <p class="text-xs sm:text-sm text-gray-400">Escolha um item abaixo. O QR Code e a chave PIX Copia e Cola serão gerados na hora para pagamento via aplicativo de qualquer banco no celular.</p>
+            </div>
+
+            <!-- Packages Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-4xl mx-auto">
+                <!-- Pack 1 -->
+                <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-6 text-center flex flex-col justify-between hover:border-cyan-500/60 transition-all shadow-xl">
+                    <div>
+                        <div class="w-14 h-14 bg-cyan-500/10 border border-cyan-500/30 rounded-2xl flex items-center justify-center text-cyan-400 text-3xl mx-auto mb-4">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <h3 class="font-game font-bold text-white text-lg">500 Fichas</h3>
+                        <p class="text-xs text-gray-400 mt-1">Pacote básico para jogar sem parar e participar dos rankings.</p>
+                        <div class="my-5">
+                            <span class="text-3xl font-game font-black text-cyan-400">R$ 5,00</span>
+                        </div>
+                    </div>
+                    <button onclick="openPixModal('500 Fichas V.I.P', 5.00)" class="w-full py-3 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-game text-xs font-bold transition-all shadow-md neon-glow-cyan">
+                        COMPRAR COM PIX
+                    </button>
+                </div>
+
+                <!-- Pack 2 (Popular) -->
+                <div class="bg-cyber-card border-2 border-purple-500 rounded-2xl p-6 text-center flex flex-col justify-between relative shadow-2xl neon-glow-purple">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white font-game text-[10px] px-3 py-0.5 rounded-full uppercase tracking-wider font-bold shadow-md">
+                        Mais Vendido
+                    </div>
+                    <div>
+                        <div class="w-14 h-14 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center justify-center text-purple-400 text-3xl mx-auto mb-4">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <h3 class="font-game font-bold text-white text-lg">1500 Fichas + Bônus</h3>
+                        <p class="text-xs text-gray-400 mt-1">Ganhe +300 fichas extras para personalizar seu perfil.</p>
+                        <div class="my-5">
+                            <span class="text-3xl font-game font-black text-purple-400">R$ 10,00</span>
+                        </div>
+                    </div>
+                    <button onclick="openPixModal('1500 Fichas + Bônus', 10.00)" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-game text-xs font-bold transition-all shadow-md">
+                        COMPRAR COM PIX
+                    </button>
+                </div>
+
+                <!-- Pack 3 (VIP) -->
+                <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-6 text-center flex flex-col justify-between hover:border-amber-500/60 transition-all shadow-xl">
+                    <div>
+                        <div class="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center text-amber-400 text-3xl mx-auto mb-4">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <h3 class="font-game font-bold text-white text-lg">Passe VIP Mensal</h3>
+                        <p class="text-xs text-gray-400 mt-1">Distintivo exclusivo no ranking, sem anúncios e 5000 fichas.</p>
+                        <div class="my-5">
+                            <span class="text-3xl font-game font-black text-amber-400">R$ 20,00</span>
+                        </div>
+                    </div>
+                    <button onclick="openPixModal('Passe VIP Mensal', 20.00)" class="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-game text-xs font-bold transition-all shadow-md">
+                        COMPRAR COM PIX
+                    </button>
+                </div>
+            </div>
+
+            <!-- PIX Key Config (Owner Settings Panel) -->
+            <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-6 max-w-xl mx-auto mt-8 shadow-2xl">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-game font-bold text-white text-sm">Painel do Dono - Configurar Chave PIX</h4>
+                        <p class="text-xs text-gray-400">Digite a sua chave PIX para que os pagamentos dos usuários caiam direto na sua conta bancária.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-subgame font-semibold text-gray-300 mb-1">Tipo de Chave PIX:</label>
+                        <select id="pixKeyType" class="w-full bg-cyber-bg border border-cyber-cardBorder rounded-xl px-3 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none">
+                            <option value="CPF">CPF / CNPJ</option>
+                            <option value="EMAIL">E-mail</option>
+                            <option value="PHONE">Telefone</option>
+                            <option value="RANDOM">Chave Aleatória (EVP)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-subgame font-semibold text-gray-300 mb-1">Sua Chave PIX:</label>
+                        <input type="text" id="ownerPixKey" placeholder="Ex: seu-email@nubank.com.br ou 000.000.000-00" class="w-full bg-cyber-bg border border-cyber-cardBorder rounded-xl px-3 py-2.5 text-xs text-cyan-300 font-mono focus:border-cyan-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-subgame font-semibold text-gray-300 mb-1">Nome do Recebedor (Conta Bancária):</label>
+                        <input type="text" id="ownerPixName" placeholder="Ex: Carlos Eduardo Silva" class="w-full bg-cyber-bg border border-cyber-cardBorder rounded-xl px-3 py-2.5 text-xs text-white focus:border-cyan-500 focus:outline-none">
+                    </div>
+                    <button onclick="saveOwnerPixSettings()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-game font-bold transition-all shadow-lg">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> SALVAR CHAVE PARA RECEBER PAGAMENTOS
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-guide" class="tab-content hidden space-y-6 max-w-4xl mx-auto">
+            <div class="bg-gradient-to-r from-cyan-900/40 via-cyber-card to-purple-900/40 border border-cyan-500/40 rounded-2xl p-6 shadow-2xl">
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full font-game text-[10px] font-bold border border-cyan-500/30">
+                        100% PELO CELULAR
+                    </span>
+                </div>
+                <h2 class="font-game text-2xl sm:text-3xl font-black text-white">Guia de Hospedagem Grátis & PIX</h2>
+                <p class="text-xs sm:text-sm text-gray-300 mt-1">Siga este passo a passo interativo para colocar este site no ar na internet sem gastar nada e receber pagamentos pelo seu celular!</p>
+            </div>
+
+            <!-- Interactive Accordion Steps -->
+            <div class="space-y-4">
+                
+                <!-- STEP 1 -->
+                <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-5 shadow-lg">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 font-game font-bold flex items-center justify-center flex-shrink-0 text-lg border border-cyan-500/40">
+                            1
+                        </div>
+                        <div class="space-y-2 flex-1">
+                            <h3 class="font-game font-bold text-white text-base">Baixar e Salvar o Arquivo do Site no Celular</h3>
+                            <p class="text-xs text-gray-300 leading-relaxed">
+                                Você precisa guardar o código deste site em um único arquivo chamado <code class="bg-cyber-bg px-2 py-0.5 rounded text-cyan-300 font-mono">index.html</code> no armazenamento interno do seu celular.
+                            </p>
+                            <div class="bg-cyber-bg p-3 rounded-xl border border-cyber-cardBorder text-xs text-gray-400 space-y-1 font-sans">
+                                <p><strong class="text-white">Dica:</strong> Copie todo o código deste artefato gerado e cole em um app de notas ou editor de texto no celular (como <em>QuickEdit</em> ou <em>Acode</em> para Android / iOS) e salve com o nome <strong>index.html</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-5 shadow-lg">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 font-game font-bold flex items-center justify-center flex-shrink-0 text-lg border border-purple-500/40">
+                            2
+                        </div>
+                        <div class="space-y-2 flex-1">
+                            <h3 class="font-game font-bold text-white text-base">Criar Conta Grátis no GitHub (Pelo Navegador)</h3>
+                            <p class="text-xs text-gray-300 leading-relaxed">
+                                O GitHub é a maior plataforma de hospedagem de projetos do mundo e permite publicar sites de graça para qualquer pessoa acessar no mundo.
+                            </p>
+                            <ol class="list-decimal list-inside text-xs text-gray-300 space-y-1 pl-1">
+                                <li>Acesse o site <a href="https://github.com" target="_blank" class="text-cyan-400 underline font-semibold">github.com</a> no navegador do seu celular.</li>
+                                <li>Clique em <strong>Sign Up</strong> e crie sua conta gratuita.</li>
+                                <li>Confirme o código recebido no seu e-mail.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-5 shadow-lg">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 font-game font-bold flex items-center justify-center flex-shrink-0 text-lg border border-pink-500/40">
+                            3
+                        </div>
+                        <div class="space-y-2 flex-1">
+                            <h3 class="font-game font-bold text-white text-base">Criar um Repositório e Enviar o Arquivo</h3>
+                            <p class="text-xs text-gray-300 leading-relaxed">
+                                Publicando o arquivo diretamente pelo celular no GitHub Pages:
+                            </p>
+                            <ol class="list-decimal list-inside text-xs text-gray-300 space-y-1.5 pl-1">
+                                <li>No GitHub, toque no ícone de <strong>+</strong> e selecione <strong>New repository</strong>.</li>
+                                <li>Dê o nome do projeto (Exemplo: <code class="bg-cyber-bg px-1.5 py-0.5 rounded text-pink-300">meu-site-de-games</code>) e marque como <strong>Public</strong>.</li>
+                                <li>Clique em <strong>Create repository</strong>.</li>
+                                <li>Na tela seguinte, toque no link <strong class="text-cyan-400 font-mono">uploading an existing file</strong>.</li>
+                                <li>Selecione o arquivo <code class="text-cyan-300 font-mono">index.html</code> do seu celular e toque em <strong>Commit changes</strong>.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4 -->
+                <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-5 shadow-lg">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 font-game font-bold flex items-center justify-center flex-shrink-0 text-lg border border-emerald-500/40">
+                            4
+                        </div>
+                        <div class="space-y-2 flex-1">
+                            <h3 class="font-game font-bold text-white text-base">Ativar o GitHub Pages (Colocar no Ar!)</h3>
+                            <p class="text-xs text-gray-300 leading-relaxed">
+                                Ative o servidor gratuito do GitHub para gerar o seu link público:
+                            </p>
+                            <ol class="list-decimal list-inside text-xs text-gray-300 space-y-1 pl-1">
+                                <li>Dentro do repositório no GitHub, clique em <strong>Settings</strong> (Engrenagem).</li>
+                                <li>No menu esquerdo/superior, toque em <strong>Pages</strong>.</li>
+                                <li>Em <em>Build and deployment</em>, mude a opção de <code class="bg-cyber-bg px-1">None</code> para <code class="bg-cyber-bg px-1 text-emerald-300">main</code> ou <code class="bg-cyber-bg px-1 text-emerald-300">master</code>.</li>
+                                <li>Clique em <strong>Save</strong>. Aguarde 1 a 2 minutos.</li>
+                                <li>Seu site estará no ar no endereço: <br><span class="font-mono text-cyan-400 text-xs bg-cyber-bg px-2 py-1 rounded block mt-1">https://seu-usuario.github.io/meu-site-de-games</span></li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 5 -->
+                <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-5 shadow-lg">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 font-game font-bold flex items-center justify-center flex-shrink-0 text-lg border border-amber-500/40">
+                            5
+                        </div>
+                        <div class="space-y-2 flex-1">
+                            <h3 class="font-game font-bold text-white text-base">Como Receber Pagamentos no Celular via PIX</h3>
+                            <p class="text-xs text-gray-300 leading-relaxed">
+                                Você pode usar qualquer banco no Brasil para receber as transferências:
+                            </p>
+                            <ul class="list-disc list-inside text-xs text-gray-300 space-y-1 pl-1">
+                                <li><strong>Nubank, Mercado Pago, PicPay, Inter ou Caixa:</strong> Copie sua chave PIX no app do banco.</li>
+                                <li>Acesse a aba <strong>Loja PIX</strong> deste site, role até o <strong>Painel do Dono</strong> e insira sua chave.</li>
+                                <li>Quando um jogador quiser comprar ou doar, o site gera o QR Code e o PIX Copia e Cola automaticamente para o banco dele transferir direto para sua conta!</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB PROFILE -->
+        <section id="tab-profile" class="tab-content hidden space-y-6">
+            <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl p-6 max-w-md mx-auto shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-cyan-600 via-purple-600 to-pink-600 opacity-30"></div>
+
+                <div class="relative z-10 flex flex-col items-center text-center mt-6">
+                    <div class="w-24 h-24 rounded-2xl bg-cyber-bg border-2 border-cyan-400 flex items-center justify-center text-cyan-400 text-4xl shadow-xl font-game">
+                        <i class="fa-solid fa-user-astronaut"></i>
+                    </div>
+
+                    <h3 id="profileUsername" class="font-game font-bold text-xl text-white mt-4">CyberPlayer</h3>
+                    <span id="profileStatusBadge" class="text-[10px] font-game px-3 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30 mt-1">Membro Nexus</span>
+
+                    <div class="grid grid-cols-3 gap-3 w-full my-6">
+                        <div class="bg-cyber-bg p-3 rounded-xl border border-cyber-cardBorder">
+                            <span class="text-[10px] text-gray-400 font-subgame uppercase">Fichas</span>
+                            <p id="profileCoins" class="font-game font-bold text-amber-400 text-sm">100</p>
+                        </div>
+                        <div class="bg-cyber-bg p-3 rounded-xl border border-cyber-cardBorder">
+                            <span class="text-[10px] text-gray-400 font-subgame uppercase">Partidas</span>
+                            <p id="profileGamesPlayed" class="font-game font-bold text-cyan-400 text-sm">0</p>
+                        </div>
+                        <div class="bg-cyber-bg p-3 rounded-xl border border-cyber-cardBorder">
+                            <span class="text-[10px] text-gray-400 font-subgame uppercase">Recorde</span>
+                            <p id="profileHighScore" class="font-game font-bold text-purple-400 text-sm">0</p>
+                        </div>
+                    </div>
+
+                    <div class="w-full text-left space-y-3">
+                        <label class="block text-xs font-subgame text-gray-300">Alterar Nickname:</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="inputNewNick" placeholder="Novo nome..." class="flex-1 bg-cyber-bg border border-cyber-cardBorder rounded-xl px-3 py-2 text-xs text-white focus:border-cyan-500 focus:outline-none">
+                            <button onclick="updateNickname()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-game font-bold transition-all">
+                                SALVAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="pixModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-cyber-card border border-cyber-cardBorder rounded-2xl w-full max-w-md p-6 relative shadow-2xl space-y-4">
+            <button onclick="closePixModal()" class="absolute top-4 right-4 w-8 h-8 rounded-xl bg-cyber-bg border border-cyber-cardBorder text-gray-400 hover:text-white flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto text-xl">
+                    <i class="fa-brands fa-pix"></i>
+                </div>
+                <h3 class="font-game font-bold text-lg text-white">Pagamento via PIX</h3>
+                <p id="modalPixItemName" class="text-xs text-purple-300 font-semibold">Pacote Selecionado</p>
+                <p id="modalPixItemPrice" class="text-2xl font-game font-black text-emerald-400">R$ 0,00</p>
+            </div>
+
+            <div class="flex flex-col items-center justify-center bg-white p-3 rounded-xl max-w-[190px] mx-auto shadow-inner">
+                <div id="modalQrCode"></div>
+            </div>
+
+            <div class="space-y-1.5">
+                <label class="block text-xs text-gray-300 font-subgame text-center">PIX Copia e Cola / Payload EMV:</label>
+                <div class="relative flex items-center">
+                    <input type="text" id="modalPixPayload" readonly class="w-full bg-cyber-bg border border-cyber-cardBorder rounded-xl pl-3 pr-12 py-2.5 text-[11px] text-emerald-400 font-mono focus:outline-none truncate">
+                    <button onclick="copyPixPayload()" class="absolute right-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-game transition-all">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-cyber-bg p-3 rounded-xl border border-cyber-cardBorder text-[11px] text-gray-400 space-y-1 text-center">
+                <p>1. Abra o aplicativo do seu banco (Nubank, Mercado Pago, etc).</p>
+                <p>2. Escolha <strong>PIX</strong> e cole o código acima ou escaneie o QR Code.</p>
+            </div>
+
+            <button onclick="simulatePixSuccess()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-game text-xs font-bold transition-all shadow-lg">
+                <i class="fa-solid fa-check-circle mr-1"></i> SIMULAR CONFIRMAÇÃO DE PAGAMENTO
+            </button>
+        </div>
+    </div>
+
+    <div id="gameModal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-50 hidden flex flex-col justify-between p-3 sm:p-5">
+        <div class="flex items-center justify-between max-w-2xl mx-auto w-full py-1">
+            <div class="flex items-center gap-3">
+                <button onclick="closeGameModal()" class="w-10 h-10 rounded-xl bg-cyber-card border border-cyber-cardBorder text-gray-300 flex items-center justify-center hover:text-white">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h3 id="activeGameTitle" class="font-game font-bold text-sm sm:text-base text-white">Nome do Jogo</h3>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <div class="bg-cyber-card border border-cyber-cardBorder px-3 py-1.5 rounded-xl font-game text-xs">
+                    <span class="text-gray-400">Score: </span>
+                    <span id="activeGameScore" class="text-cyan-400 font-bold">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 flex items-center justify-center my-auto w-full max-w-2xl mx-auto relative overflow-hidden">
+            
+            <!-- GAME 1: SNAKE -->
+            <div id="gameViewSnake" class="game-view hidden flex-col items-center justify-center w-full">
+                <canvas id="snakeCanvas" width="320" height="320" class="bg-cyber-bg border-2 border-emerald-500/60 rounded-2xl shadow-2xl max-w-full"></canvas>
+                <!-- Mobile D-Pad Touch Controls -->
+                <div class="grid grid-cols-3 gap-2 mt-4 w-48 mx-auto sm:hidden">
+                    <div></div>
+                    <button onclick="handleSnakeDirection('UP')" class="w-12 h-12 bg-cyber-card border border-cyber-cardBorder rounded-xl text-emerald-400 active:bg-emerald-600 active:text-white flex items-center justify-center text-xl shadow"><i class="fa-solid fa-chevron-up"></i></button>
+                    <div></div>
+                    <button onclick="handleSnakeDirection('LEFT')" class="w-12 h-12 bg-cyber-card border border-cyber-cardBorder rounded-xl text-emerald-400 active:bg-emerald-600 active:text-white flex items-center justify-center text-xl shadow"><i class="fa-solid fa-chevron-left"></i></button>
+                    <button onclick="handleSnakeDirection('DOWN')" class="w-12 h-12 bg-cyber-card border border-cyber-cardBorder rounded-xl text-emerald-400 active:bg-emerald-600 active:text-white flex items-center justify-center text-xl shadow"><i class="fa-solid fa-chevron-down"></i></button>
+                    <button onclick="handleSnakeDirection('RIGHT')" class="w-12 h-12 bg-cyber-card border border-cyber-cardBorder rounded-xl text-emerald-400 active:bg-emerald-600 active:text-white flex items-center justify-center text-xl shadow"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <!-- GAME 2: FLAPPY BIRD -->
+            <div id="gameViewFlappy" class="game-view hidden flex-col items-center justify-center w-full">
+                <canvas id="flappyCanvas" width="320" height="400" class="bg-cyber-bg border-2 border-amber-500/60 rounded-2xl shadow-2xl max-w-full cursor-pointer"></canvas>
+                <p class="text-xs text-gray-400 mt-2 font-subgame">Toque na tela/canvas para impulsionar!</p>
+            </div>
+
+            <!-- GAME 3: TIC TAC TOE -->
+            <div id="gameViewTicTacToe" class="game-view hidden flex-col items-center justify-center w-full max-w-xs">
+                <div id="tttGrid" class="grid grid-cols-3 gap-3 w-full aspect-square bg-cyber-card p-3 border border-cyber-cardBorder rounded-2xl shadow-xl">
+                    <!-- Slots generated in JS -->
+                </div>
+            </div>
+
+            <!-- GAME 4: MEMORY -->
+            <div id="gameViewMemory" class="game-view hidden flex-col items-center justify-center w-full max-w-sm">
+                <div id="memoryGrid" class="grid grid-cols-4 gap-2.5 w-full bg-cyber-card p-3 border border-cyber-cardBorder rounded-2xl shadow-xl">
+                    <!-- Cards generated in JS -->
+                </div>
+            </div>
+
+        </div>
+
+        <div class="max-w-2xl mx-auto w-full py-2 text-center">
+            <button onclick="restartActiveGame()" class="px-6 py-2.5 bg-cyber-card hover:bg-cyber-cardBorder border border-cyber-cardBorder text-white rounded-xl font-game text-xs font-bold transition-all shadow-md">
+                <i class="fa-solid fa-rotate-right mr-1.5"></i> REINICIAR PARTIDA
+            </button>
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-cyber-bg/95 backdrop-blur-lg border-t border-cyber-cardBorder py-2.5 px-4">
+        <div class="max-w-md mx-auto flex items-center justify-around">
+            <button onclick="switchTab('games')" id="nav-games" class="nav-btn text-cyan-400 flex flex-col items-center gap-1 transition-colors">
+                <i class="fa-solid fa-gamepad text-lg"></i>
+                <span class="text-[10px] font-game">Jogos</span>
+            </button>
+
+            <button onclick="switchTab('store')" id="nav-store" class="nav-btn text-gray-400 flex flex-col items-center gap-1 transition-colors">
+                <i class="fa-solid fa-store text-lg"></i>
+                <span class="text-[10px] font-game">Loja PIX</span>
+            </button>
+
+            <button onclick="switchTab('guide')" id="nav-guide" class="nav-btn text-gray-400 flex flex-col items-center gap-1 transition-colors">
+                <i class="fa-solid fa-cloud-arrow-up text-lg"></i>
+                <span class="text-[10px] font-game">Hospedar</span>
+            </button>
+
+            <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn text-gray-400 flex flex-col items-center gap-1 transition-colors">
+                <i class="fa-solid fa-user-astronaut text-lg"></i>
+                <span class="text-[10px] font-game">Perfil</span>
+            </button>
+        </div>
+    </nav>
+
+    <script>
+        /* ==========================================================================
+           1. WEB AUDIO API SYNTHESIZER (No external MP3 files needed!)
+           ========================================================================== */
+        const AudioFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playBeep(freq = 440, type = 'sine', duration = 0.1) {
+                try {
+                    this.init();
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {}
+            },
+            playScoreSound() {
+                this.playBeep(587.33, 'square', 0.08);
+                setTimeout(() => this.playBeep(880, 'square', 0.15), 80);
+            },
+            playGameOverSound() {
+                this.playBeep(220, 'sawtooth', 0.2);
+                setTimeout(() => this.playBeep(146.83, 'sawtooth', 0.3), 150);
+            }
+        };
+
+        /* ==========================================================================
+           2. GLOBAL STATE & LOCALSTORAGE
+           ========================================================================== */
+        let state = {
+            coins: parseInt(localStorage.getItem('nexus_coins')) || 100,
+            gamesPlayed: parseInt(localStorage.getItem('nexus_games_played')) || 0,
+            highScore: parseInt(localStorage.getItem('nexus_highscore')) || 0,
+            username: localStorage.getItem('nexus_username') || 'CyberPlayer',
+            pixType: localStorage.getItem('nexus_pix_type') || 'EMAIL',
+            pixKey: localStorage.getItem('nexus_pix_key') || 'seu-email@pix.com.br',
+            pixName: localStorage.getItem('nexus_pix_name') || 'Seu Nome Completo'
+        };
+
+        const mockLeaderboard = [
+            { name: "NeoMatrix", score: 850, vip: true },
+            { name: "CyberViper", score: 620, vip: false },
+            { name: "PixelQueen", score: 540, vip: true },
+            { name: "ShadowX", score: 410, vip: false }
+        ];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            updateUserUI();
+            renderLeaderboard();
+            document.getElementById('ownerPixKey').value = state.pixKey;
+            document.getElementById('ownerPixName').value = state.pixName;
+            document.getElementById('pixKeyType').value = state.pixType;
+        });
+
+        function updateUserUI() {
+            document.getElementById('headerCoins').innerText = state.coins;
+            document.getElementById('profileCoins').innerText = state.coins;
+            document.getElementById('profileGamesPlayed').innerText = state.gamesPlayed;
+            document.getElementById('profileHighScore').innerText = state.highScore;
+            document.getElementById('profileUsername').innerText = state.username;
+
+            localStorage.setItem('nexus_coins', state.coins);
+            localStorage.setItem('nexus_games_played', state.gamesPlayed);
+            localStorage.setItem('nexus_highscore', state.highScore);
+            localStorage.setItem('nexus_username', state.username);
+        }
+
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboardList');
+            container.innerHTML = '';
+            
+            // Inject current user into mockup list
+            const fullList = [...mockLeaderboard, { name: state.username, score: state.highScore, vip: true }]
+                .sort((a, b) => b.score - a.score);
+
+            fullList.forEach((player, idx) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center justify-between p-3 rounded-xl bg-cyber-bg border border-cyber-cardBorder';
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="font-game font-extrabold text-xs w-5 text-center ${idx === 0 ? 'text-amber-400' : idx === 1 ? 'text-gray-300' : idx === 2 ? 'text-amber-600' : 'text-gray-500'}">#${idx + 1}</span>
+                        <div>
+                            <p class="font-game text-xs font-bold text-white flex items-center gap-1.5">
+                                ${player.name}
+                                ${player.vip ? '<i class="fa-solid fa-crown text-[10px] text-amber-400"></i>' : ''}
+                            </p>
+                        </div>
+                    </div>
+                    <span class="font-game font-extrabold text-xs text-cyan-400">${player.score} pts</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateNickname() {
+            const input = document.getElementById('inputNewNick').value.trim();
+            if (input.length >= 3) {
+                state.username = input;
+                updateUserUI();
+                renderLeaderboard();
+                alert('Nickname atualizado com sucesso!');
+                document.getElementById('inputNewNick').value = '';
+            } else {
+                alert('O nickname deve conter no mínimo 3 caracteres.');
+            }
+        }
+
+        /* ==========================================================================
+           3. NAVIGATION TABS
+           ========================================================================== */
+        function switchTab(tabId) {
+            AudioFX.playBeep(600, 'sine', 0.05);
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-cyan-400');
+                btn.classList.add('text-gray-400');
+            });
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('text-cyan-400');
+                activeNav.classList.remove('text-gray-400');
+            }
+        }
+
+        /* ==========================================================================
+           4. PIX DYNAMIC GENERATOR & OWNER CONFIG
+           ========================================================================== */
+        let currentPackage = null;
+
+        function saveOwnerPixSettings() {
+            const key = document.getElementById('ownerPixKey').value.trim();
+            const name = document.getElementById('ownerPixName').value.trim();
+            const type = document.getElementById('pixKeyType').value;
+
+            if (key && name) {
+                state.pixKey = key;
+                state.pixName = name;
+                state.pixType = type;
+                localStorage.setItem('nexus_pix_key', key);
+                localStorage.setItem('nexus_pix_name', name);
+                localStorage.setItem('nexus_pix_type', type);
+                AudioFX.playScoreSound();
+                alert('Sua chave PIX para receber pagamentos foi salva!');
+            } else {
+                alert('Por favor, preencha a chave e o nome do recebedor.');
+            }
+        }
+
+        function openPixModal(itemName, price) {
+            AudioFX.playBeep(700, 'sine', 0.08);
+            currentPackage = { name: itemName, price: price };
+
+            document.getElementById('modalPixItemName').innerText = itemName;
+            document.getElementById('modalPixItemPrice').innerText = `R$ ${price.toFixed(2).replace('.', ',')}`;
+
+            // Generate BR Code / PIX Payload Standard Format
+            const rawKey = state.pixKey.replace(/[^a-zA-Z0-9@.-]/g, '');
+            const pixPayload = `00020126360014BR.GOV.BCB.PIX0114${rawKey}5204000053039865405${price.toFixed(2)}5802BR5915${state.pixName.substring(0,15)}6009SAOPAULO62070503***6304`;
+
+            document.getElementById('modalPixPayload').value = pixPayload;
+
+            // Generate QR Code Element
+            const qrContainer = document.getElementById('modalQrCode');
+            qrContainer.innerHTML = '';
+            new QRCode(qrContainer, {
+                text: pixPayload,
+                width: 160,
+                height: 160,
+                colorDark: "#070913",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+
+            document.getElementById('pixModal').classList.remove('hidden');
+        }
+
+        function closePixModal() {
+            document.getElementById('pixModal').classList.add('hidden');
+        }
+
+        function copyPixPayload() {
+            const input = document.getElementById('modalPixPayload');
+            input.select();
+            document.execCommand('copy');
+            AudioFX.playScoreSound();
+            alert('Código PIX Copia e Cola copiado com sucesso!');
+        }
+
+        function simulatePixSuccess() {
+            if (!currentPackage) return;
+
+            if (currentPackage.name.includes('500')) state.coins += 500;
+            else if (currentPackage.name.includes('1500')) state.coins += 1800;
+            else if (currentPackage.name.includes('VIP')) state.coins += 5000;
+
+            AudioFX.playScoreSound();
+            updateUserUI();
+            renderLeaderboard();
+            closePixModal();
+            alert(`Pagamento de R$ ${currentPackage.price.toFixed(2)} recebido! ${currentPackage.name} adicionado com sucesso.`);
+        }
+
+        /* ==========================================================================
+           5. GAME CONTROLLER ENGINE
+           ========================================================================== */
+        let activeGameName = null;
+
+        function openGame(gameId) {
+            AudioFX.playBeep(500, 'sine', 0.1);
+            activeGameName = gameId;
+            state.gamesPlayed++;
+            updateUserUI();
+
+            document.querySelectorAll('.game-view').forEach(el => el.classList.add('hidden'));
+            document.getElementById('gameModal').classList.remove('hidden');
+
+            if (gameId === 'snake') {
+                document.getElementById('activeGameTitle').innerText = 'Cyber Snake';
+                document.getElementById('gameViewSnake').classList.remove('hidden');
+                initSnake();
+            } else if (gameId === 'flappy') {
+                document.getElementById('activeGameTitle').innerText = 'Cyber Flappy';
+                document.getElementById('gameViewFlappy').classList.remove('hidden');
+                initFlappy();
+            } else if (gameId === 'tictactoe') {
+                document.getElementById('activeGameTitle').innerText = 'Jogo da Velha AI';
+                document.getElementById('gameViewTicTacToe').classList.remove('hidden');
+                initTicTacToe();
+            } else if (gameId === 'memory') {
+                document.getElementById('activeGameTitle').innerText = 'Cyber Memory';
+                document.getElementById('gameViewMemory').classList.remove('hidden');
+                initMemory();
+            }
+        }
+
+        function closeGameModal() {
+            document.getElementById('gameModal').classList.add('hidden');
+            stopGameLoops();
+        }
+
+        function restartActiveGame() {
+            if (activeGameName) openGame(activeGameName);
+        }
+
+        function stopGameLoops() {
+            if (snakeInterval) clearInterval(snakeInterval);
+            if (flappyFrameId) cancelAnimationFrame(flappyFrameId);
+        }
+
+        function updateScore(points) {
+            document.getElementById('activeGameScore').innerText = points;
+            if (points > state.highScore) {
+                state.highScore = points;
+                updateUserUI();
+                renderLeaderboard();
+            }
+        }
+
+        /* ==========================================================================
+           GAME 1: CYBER SNAKE
+           ========================================================================== */
+        let snakeCanvas, snakeCtx, snakeInterval;
+        let snakeParts = [], snakeFood = {}, snakeDx = 10, snakeDy = 0, snakeScore = 0;
+
+        function initSnake() {
+            stopGameLoops();
+            snakeCanvas = document.getElementById('snakeCanvas');
+            snakeCtx = snakeCanvas.getContext('2d');
+            snakeParts = [{x: 160, y: 160}, {x: 150, y: 160}, {x: 140, y: 160}];
+            snakeDx = 10; snakeDy = 0; snakeScore = 0;
+            updateScore(0);
+            spawnFood();
+            snakeInterval = setInterval(snakeLoop, 85);
+        }
+
+        function snakeLoop() {
+            if (isSnakeGameOver()) {
+                AudioFX.playGameOverSound();
+                clearInterval(snakeInterval);
+                alert(`Game Over! Sua pontuação final: ${snakeScore}`);
+                return;
+            }
+
+            snakeCtx.fillStyle = '#070913';
+            snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+
+            // Move snake
+            const head = {x: snakeParts[0].x + snakeDx, y: snakeParts[0].y + snakeDy};
+            snakeParts.unshift(head);
+
+            if (snakeParts[0].x === snakeFood.x && snakeParts[0].y === snakeFood.y) {
+                AudioFX.playScoreSound();
+                snakeScore += 10;
+                updateScore(snakeScore);
+                spawnFood();
+            } else {
+                snakeParts.pop();
+            }
+
+            // Draw Food
+            snakeCtx.fillStyle = '#ec4899';
+            snakeCtx.fillRect(snakeFood.x, snakeFood.y, 10, 10);
+
+            // Draw Snake
+            snakeParts.forEach((part, i) => {
+                snakeCtx.fillStyle = i === 0 ? '#10b981' : '#059669';
+                snakeCtx.fillRect(part.x, part.y, 10, 10);
+            });
+        }
+
+        function spawnFood() {
+            snakeFood = {
+                x: Math.floor(Math.random() * (snakeCanvas.width / 10)) * 10,
+                y: Math.floor(Math.random() * (snakeCanvas.height / 10)) * 10
+            };
+        }
+
+        function isSnakeGameOver() {
+            for (let i = 4; i < snakeParts.length; i++) {
+                if (snakeParts[i].x === snakeParts[0].x && snakeParts[i].y === snakeParts[0].y) return true;
+            }
+            return snakeParts[0].x < 0 || snakeParts[0].x >= snakeCanvas.width ||
+                   snakeParts[0].y < 0 || snakeParts[0].y >= snakeCanvas.height;
+        }
+
+        function handleSnakeDirection(dir) {
+            AudioFX.playBeep(400, 'sine', 0.03);
+            if (dir === 'UP' && snakeDy === 0) { snakeDx = 0; snakeDy = -10; }
+            if (dir === 'DOWN' && snakeDy === 0) { snakeDx = 0; snakeDy = 10; }
+            if (dir === 'LEFT' && snakeDx === 0) { snakeDx = -10; snakeDy = 0; }
+            if (dir === 'RIGHT' && snakeDx === 0) { snakeDx = 10; snakeDy = 0; }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (activeGameName === 'snake') {
+                if (e.key === 'ArrowUp') handleSnakeDirection('UP');
+                if (e.key === 'ArrowDown') handleSnakeDirection('DOWN');
+                if (e.key === 'ArrowLeft') handleSnakeDirection('LEFT');
+                if (e.key === 'ArrowRight') handleSnakeDirection('RIGHT');
+            }
+        });
+
+        /* ==========================================================================
+           GAME 2: CYBER FLAPPY
+           ========================================================================== */
+        let flappyCanvas, flappyCtx, flappyFrameId;
+        let drone = { x: 50, y: 150, radius: 10, gravity: 0.35, jump: -5.8, vel: 0 };
+        let obstacles = [], flappyScore = 0, flappyTimer = 0;
+
+        function initFlappy() {
+            stopGameLoops();
+            flappyCanvas = document.getElementById('flappyCanvas');
+            flappyCtx = flappyCanvas.getContext('2d');
+            drone.y = 150; drone.vel = 0;
+            obstacles = []; flappyScore = 0; flappyTimer = 0;
+            updateScore(0);
+
+            flappyCanvas.onclick = () => {
+                AudioFX.playBeep(600, 'square', 0.05);
+                drone.vel = drone.jump;
+            };
+
+            flappyLoop();
+        }
+
+        function flappyLoop() {
+            flappyTimer++;
+            flappyCtx.fillStyle = '#070913';
+            flappyCtx.fillRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+
+            // Physics
+            drone.vel += drone.gravity;
+            drone.y += drone.vel;
+
+            // Draw Player Drone
+            flappyCtx.fillStyle = '#f59e0b';
+            flappyCtx.beginPath();
+            flappyCtx.arc(drone.x, drone.y, drone.radius, 0, Math.PI * 2);
+            flappyCtx.fill();
+
+            // Spawn Obstacles
+            if (flappyTimer % 90 === 0) {
+                const gap = 110;
+                const topH = Math.floor(Math.random() * (flappyCanvas.height - gap - 80)) + 30;
+                obstacles.push({ x: flappyCanvas.width, top: topH, bottom: flappyCanvas.height - topH - gap, passed: false });
+            }
+
+            // Move & Draw Obstacles
+            obstacles.forEach((pipe) => {
+                pipe.x -= 2.2;
+                flappyCtx.fillStyle = '#06b6d4';
+                flappyCtx.fillRect(pipe.x, 0, 36, pipe.top);
+                flappyCtx.fillRect(pipe.x, flappyCanvas.height - pipe.bottom, 36, pipe.bottom);
+
+                if (!pipe.passed && pipe.x < drone.x) {
+                    pipe.passed = true;
+                    flappyScore += 10;
+                    AudioFX.playScoreSound();
+                    updateScore(flappyScore);
+                }
+
+                // Collision Detection
+                if (
+                    drone.x + drone.radius > pipe.x &&
+                    drone.x - drone.radius < pipe.x + 36 &&
+                    (drone.y - drone.radius < pipe.top || drone.y + drone.radius > flappyCanvas.height - pipe.bottom)
+                ) {
+                    AudioFX.playGameOverSound();
+                    cancelAnimationFrame(flappyFrameId);
+                    alert(`Game Over! Você fez ${flappyScore} pontos.`);
+                    return;
+                }
+            });
+
+            if (drone.y + drone.radius >= flappyCanvas.height || drone.y - drone.radius <= 0) {
+                AudioFX.playGameOverSound();
+                cancelAnimationFrame(flappyFrameId);
+                alert(`Game Over! Você fez ${flappyScore} pontos.`);
+                return;
+            }
+
+            flappyFrameId = requestAnimationFrame(flappyLoop);
+        }
+
+        /* ==========================================================================
+           GAME 3: TIC TAC TOE (VS SMART AI)
+           ========================================================================== */
+        let tttState = Array(9).fill('');
+        let tttScore = 0;
+
+        function initTicTacToe() {
+            tttState = Array(9).fill('');
+            tttScore = 0;
+            updateScore(0);
+            const grid = document.getElementById('tttGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('button');
+                cell.className = 'w-full h-full bg-cyber-bg border border-cyber-cardBorder rounded-xl font-game text-2xl font-black text-white active:scale-95 transition-all flex items-center justify-center';
+                cell.onclick = () => playTicTacToe(i);
+                cell.id = `ttt-cell-${i}`;
+                grid.appendChild(cell);
+            }
+        }
+
+        function playTicTacToe(idx) {
+            if (tttState[idx] !== '') return;
+
+            AudioFX.playBeep(500, 'sine', 0.05);
+            tttState[idx] = 'X';
+            renderTTTBoard();
+
+            if (checkTTTWinner('X')) {
+                AudioFX.playScoreSound();
+                tttScore += 50;
+                updateScore(tttScore);
+                setTimeout(() => alert('Você venceu a Inteligência Artificial!'), 100);
+                return;
+            }
+
+            if (!tttState.includes('')) {
+                setTimeout(() => alert('Empate!'), 100);
+                return;
+            }
+
+            // Simple AI Move
+            setTimeout(() => {
+                const emptyIndices = tttState.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+                if (emptyIndices.length > 0) {
+                    const aiChoice = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+                    tttState[aiChoice] = 'O';
+                    renderTTTBoard();
+
+                    if (checkTTTWinner('O')) {
+                        AudioFX.playGameOverSound();
+                        setTimeout(() => alert('A Inteligência Artificial venceu!'), 100);
+                    }
+                }
+            }, 300);
+        }
+
+        function renderTTTBoard() {
+            tttState.forEach((val, i) => {
+                const cell = document.getElementById(`ttt-cell-${i}`);
+                cell.innerText = val;
+                cell.className = `w-full h-full bg-cyber-bg border border-cyber-cardBorder rounded-xl font-game text-2xl font-black active:scale-95 transition-all flex items-center justify-center ${val === 'X' ? 'text-cyan-400' : 'text-purple-400'}`;
+            });
+        }
+
+        function checkTTTWinner(player) {
+            const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return wins.some(combo => combo.every(i => tttState[i] === player));
+        }
+
+        /* ==========================================================================
+           GAME 4: CYBER MEMORY MATCH
+           ========================================================================== */
+        const cardIcons = ['fa-ghost', 'fa-dragon', 'fa-robot', 'fa-bolt', 'fa-shield-halved', 'fa-skull'];
+        let memoryDeck = [], flippedCards = [], matchedCount = 0, memoryScore = 0;
+
+        function initMemory() {
+            memoryDeck = [...cardIcons, ...cardIcons].sort(() => Math.random() - 0.5);
+            flippedCards = []; matchedCount = 0; memoryScore = 0;
+            updateScore(0);
+
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            memoryDeck.forEach((icon, i) => {
+                const card = document.createElement('div');
+                card.className = 'aspect-square bg-cyber-bg border border-cyber-cardBorder rounded-xl flex items-center justify-center text-xl cursor-pointer transition-all duration-300';
+                card.onclick = () => flipCard(card, icon, i);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard(card, icon, idx) {
+            if (flippedCards.length >= 2 || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+            AudioFX.playBeep(650, 'sine', 0.05);
+            card.innerHTML = `<i class="fa-solid ${icon} text-purple-400"></i>`;
+            card.classList.add('flipped', 'border-purple-500');
+            flippedCards.push({ card, icon });
+
+            if (flippedCards.length === 2) {
+                if (flippedCards[0].icon === flippedCards[1].icon) {
+                    AudioFX.playScoreSound();
+                    flippedCards[0].card.classList.add('matched', 'border-emerald-500');
+                    flippedCards[1].card.classList.add('matched', 'border-emerald-500');
+                    flippedCards = [];
+                    matchedCount += 2;
+                    memoryScore += 20;
+                    updateScore(memoryScore);
+
+                    if (matchedCount === memoryDeck.length) {
+                        setTimeout(() => alert(`Excelente! Você completou a memória com ${memoryScore} pontos!`), 200);
+                    }
+                } else {
+                    setTimeout(() => {
+                        flippedCards.forEach(c => {
+                            c.card.innerHTML = '';
+                            c.card.classList.remove('flipped', 'border-purple-500');
+                        });
+                        flippedCards = [];
+                    }, 700);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
